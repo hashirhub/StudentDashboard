@@ -48,3 +48,16 @@
         </div>
     }
 </div>
+
+@code {
+    private List<AttendanceRecord> records = new();
+    private int presentCount;
+    private decimal attendancePercentage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var student = await GetCurrentStudentAsync();
+        if (student is null)
+        {
+            return;
+        }
