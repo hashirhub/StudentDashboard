@@ -61,3 +61,18 @@
         {
             return;
         }
+
+        records = (await SchoolService.GetAttendanceAsync())
+            .Where(item => item.StudentId == student.Id)
+            .OrderByDescending(item => item.AttendanceDate)
+            .ToList();
+
+        presentCount = records.Count(item => item.Status == "Present");
+        attendancePercentage = records.Count == 0 ? 0 : Math.Round((decimal)presentCount / records.Count * 100, 2);
+    }
+
+    private static string GetStatusClass(string status)
+    {
+        return status == "Present" ? "status-pill success" : "status-pill danger";
+    }
+
