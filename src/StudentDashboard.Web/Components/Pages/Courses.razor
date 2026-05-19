@@ -67,3 +67,18 @@
             enrollments = new();
             return;
         }
+
+        var query = (await SchoolService.GetEnrollmentsAsync())
+            .Where(item => item.StudentId == student.Id);
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim().ToLower();
+            query = query.Where(item =>
+                (item.Course?.Code ?? string.Empty).ToLower().Contains(term) ||
+                (item.Course?.Title ?? string.Empty).ToLower().Contains(term) ||
+                (item.Course?.InstructorName ?? string.Empty).ToLower().Contains(term));
+        }
+
+        enrollments = query.OrderBy(item => item.Course?.Code).ToList();
+    }
