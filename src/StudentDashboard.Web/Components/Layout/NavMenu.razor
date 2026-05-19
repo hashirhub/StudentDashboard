@@ -58,3 +58,14 @@
         };
     }
 
+    private static string GetInitials(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return "SD";
+        }
+
+        var token = text.Split('@', StringSplitOptions.RemoveEmptyEntries)[0];
+        return token.Length == 0 ? "SD" : token[0].ToString().ToUpperInvariant();
+    }
+}
