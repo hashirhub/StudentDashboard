@@ -99,3 +99,14 @@
         messageType = "success";
         await LoadFeesAsync();
     }
+
+    private async Task<Student?> GetCurrentStudentAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var email = state.User.Identity?.Name ?? "irtaza@studentdash.local";
+        var students = await SchoolService.GetStudentsAsync(email);
+        return students.FirstOrDefault(item => item.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            ?? students.FirstOrDefault()
+            ?? (await SchoolService.GetStudentsAsync()).FirstOrDefault();
+    }
+}
