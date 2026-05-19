@@ -44,3 +44,26 @@
         </div>
     }
 </div>
+
+@code {
+    private List<AssignmentItem> assignments = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var student = await GetCurrentStudentAsync();
+        if (student is null)
+        {
+            return;
+        }
+
+        var courseIds = (await SchoolService.GetEnrollmentsAsync())
+            .Where(item => item.StudentId == student.Id)
+            .Select(item => item.CourseId)
+            .ToHashSet();
+
+        assignments = (await SchoolService.GetAssignmentsAsync())
+            .Where(item => courseIds.Contains(item.CourseId))
+            .OrderBy(item => item.DueDate)
+            .ToList();
+    }
+
