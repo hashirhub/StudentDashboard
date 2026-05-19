@@ -62,3 +62,23 @@
     }
 </div>
 
+@code {
+    private List<FeeInvoice> invoices = new();
+    private decimal pendingAmount;
+    private int paidCount;
+    private string message = string.Empty;
+    private string messageType = "success";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFeesAsync();
+    }
+
+    private async Task LoadFeesAsync()
+    {
+        var student = await GetCurrentStudentAsync();
+        if (student is null)
+        {
+            invoices = new();
+            return;
+        }
