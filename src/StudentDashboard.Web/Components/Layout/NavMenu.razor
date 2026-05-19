@@ -30,3 +30,13 @@
                 <NavLink href="/events"><span class="nav-icon">🗓️</span> Events</NavLink>
                 <NavLink href="/support"><span class="nav-icon">🛟</span> Support</NavLink>
             </nav>
+            <button class="btn btn-outline-light w-100 mt-3 logout-btn" @onclick="LogoutAsync">Logout</button>
+        </Authorized>
+        <NotAuthorized>
+            <nav class="nav-list">
+                <NavLink href="/login"><span class="nav-icon">🔐</span> Student Login</NavLink>
+            </nav>
+        </NotAuthorized>
+    </AuthorizeView>
+</aside>
+
