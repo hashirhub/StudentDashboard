@@ -1,0 +1,90 @@
+@page "/profile"
+@attribute [Authorize]
+@inject ISchoolService SchoolService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="page-title">
+    <div>
+        <h2>My Profile</h2>
+        <p class="text-muted">View your student details and update your contact number.</p>
+    </div>
+</div>
+
+<AlertBox Message="@message" Type="@messageType" />
+
+@if (studentForm is null)
+{
+    <div class="data-card">Loading profile...</div>
+}
+else
+{
+    <div class="grid grid-2">
+        <div class="data-card">
+            <div class="card-heading">
+                <div>
+                    <h3>@studentForm.FirstName @studentForm.LastName</h3>
+                    <p>@studentForm.StudentNumber</p>
+                </div>
+                <span class="status-pill success">@studentForm.Status</span>
+            </div>
+
+            <ul class="list-clean">
+                <li><div><div class="item-title">Email</div><div class="item-text">@studentForm.Email</div></div></li>
+                <li><div><div class="item-title">Program</div><div class="item-text">@studentForm.ProgramName</div></div><div class="item-meta">Semester @studentForm.Semester</div></li>
+                <li><div><div class="item-title">Phone</div><div class="item-text">@studentForm.Phone</div></div></li>
+            </ul>
+        </div>
+
+        <div class="data-card">
+            <div class="card-heading">
+                <div>
+                    <h3>Update Contact</h3>
+                    <p>Student can update personal phone number.</p>
+                </div>
+            </div>
+
+            <EditForm Model="@studentForm" OnValidSubmit="SaveProfileAsync">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <InputText class="form-control" @bind-Value="studentForm.Phone" />
+                    <ValidationMessage For="@(() => studentForm.Phone)" />
+                </div>
+                <button class="btn btn-primary" type="submit">Save Profile</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private Student? studentForm;
+    private string message = string.Empty;
+    private string messageType = "success";
+
+    protected override async Task OnInitializedAsync()
+    {
+        studentForm = await GetCurrentStudentAsync();
+    }
+
+    private async Task SaveProfileAsync()
+    {
+        if (studentForm is null)
+        {
+            return;
+        }
+
+        await SchoolService.SaveStudentAsync(studentForm);
+        message = "Profile updated successfully.";
+        messageType = "success";
+    }
+
+    private async Task<Student?> GetCurrentStudentAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var email = state.User.Identity?.Name ?? "irtaza@studentdash.local";
+        var students = await SchoolService.GetStudentsAsync(email);
+        return students.FirstOrDefault(item => item.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            ?? students.FirstOrDefault()
+            ?? (await SchoolService.GetStudentsAsync()).FirstOrDefault();
+    }
+}

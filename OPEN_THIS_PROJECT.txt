@@ -1,0 +1,11 @@
+OPEN THIS PROJECT IN VISUAL STUDIO
+
+1. Extract the ZIP file.
+2. Open StudentDashboard.slnx.
+3. Run the StudentDashboard.Web profile.
+4. Use one of the demo student emails:
+   - irtaza@studentdash.local
+   - sufyan@studentdash.local
+   - hashir@studentdash.local
+
+This is a Student-only dashboard project. It does not include separate staff roles.

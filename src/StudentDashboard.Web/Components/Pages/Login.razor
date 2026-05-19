@@ -1,0 +1,88 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@inject DashboardAuthStateProvider AuthProvider
+@inject NavigationManager Navigation
+
+<div class="login-shell">
+    <div class="login-panel">
+        <div class="login-showcase">
+            <span class="badge-soft mb-2">Student Portal</span>
+            <h2>Login to your student dashboard</h2>
+            <p>Access your courses, attendance, grades, assignments, fees and campus updates in one place.</p>
+
+            <div class="showcase-points">
+                <div class="showcase-point">
+                    <div class="point-icon">📚</div>
+                    <div>
+                        <strong>Academic view</strong>
+                        <div>View enrolled courses, assignments, grades and attendance.</div>
+                    </div>
+                </div>
+                <div class="showcase-point">
+                    <div class="point-icon">💳</div>
+                    <div>
+                        <strong>Fees and notices</strong>
+                        <div>Check fee invoices, notifications and upcoming events.</div>
+                    </div>
+                </div>
+                <div class="showcase-point">
+                    <div class="point-icon">🛟</div>
+                    <div>
+                        <strong>Student support</strong>
+                        <div>Create and track personal support tickets.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-card">
+            <h3>Student Login</h3>
+            <p>Select a student account to continue.</p>
+
+            <EditForm Model="@loginModel" OnValidSubmit="LoginAsync">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label class="form-label">Student Email</label>
+                    <InputText class="form-control" @bind-Value="loginModel.Email" />
+                    <ValidationMessage For="@(() => loginModel.Email)" />
+                </div>
+                <button class="btn btn-primary w-100" type="submit">Open Student Dashboard</button>
+            </EditForm>
+
+            <div class="role-hint mt-3">
+                <strong>Demo students</strong>
+                <div class="demo-roles">
+                    <button class="demo-role" type="button" @onclick="UseIrtaza">Irtaza Shahid</button>
+                    <button class="demo-role" type="button" @onclick="UseSufyan">Sufyan Amjad</button>
+                    <button class="demo-role" type="button" @onclick="UseHashir">Hashir Hassan</button>
+                </div>
+                <div class="mt-2 small text-muted">Selected email: <strong>@loginModel.Email</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel loginModel = new()
+    {
+        Email = "irtaza@studentdash.local"
+    };
+
+    private async Task LoginAsync()
+    {
+        await AuthProvider.LoginAsync(loginModel.Email.Trim());
+        Navigation.NavigateTo("/");
+    }
+
+    private void UseIrtaza() => loginModel.Email = "irtaza@studentdash.local";
+
+    private void UseSufyan() => loginModel.Email = "sufyan@studentdash.local";
+
+    private void UseHashir() => loginModel.Email = "hashir@studentdash.local";
+
+    private sealed class LoginModel
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+    }
+}

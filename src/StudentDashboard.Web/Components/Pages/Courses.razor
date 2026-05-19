@@ -1,0 +1,95 @@
+@page "/courses"
+@attribute [Authorize]
+@inject ISchoolService SchoolService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="page-title">
+    <div>
+        <h2>My Courses</h2>
+        <p class="text-muted">Courses currently assigned to your student account.</p>
+    </div>
+</div>
+
+<div class="data-card">
+    <div class="toolbar mb-3">
+        <InputText class="form-control" placeholder="Search my courses" @bind-Value="searchTerm" />
+        <button class="btn btn-primary" @onclick="LoadCoursesAsync">Search</button>
+    </div>
+
+    @if (enrollments.Count == 0)
+    {
+        <div class="empty-state">No enrolled courses found.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Title</th>
+                        <th>Instructor</th>
+                        <th>Credits</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var enrollment in enrollments)
+                    {
+                        <tr>
+                            <td>@enrollment.Course?.Code</td>
+                            <td>@enrollment.Course?.Title</td>
+                            <td>@enrollment.Course?.InstructorName</td>
+                            <td>@enrollment.Course?.CreditHours</td>
+                            <td><span class="status-pill success">@enrollment.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Enrollment> enrollments = new();
+    private string searchTerm = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCoursesAsync();
+    }
+
+    private async Task LoadCoursesAsync()
+    {
+        var student = await GetCurrentStudentAsync();
+        if (student is null)
+        {
+            enrollments = new();
+            return;
+        }
+
+        var query = (await SchoolService.GetEnrollmentsAsync())
+            .Where(item => item.StudentId == student.Id);
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim().ToLower();
+            query = query.Where(item =>
+                (item.Course?.Code ?? string.Empty).ToLower().Contains(term) ||
+                (item.Course?.Title ?? string.Empty).ToLower().Contains(term) ||
+                (item.Course?.InstructorName ?? string.Empty).ToLower().Contains(term));
+        }
+
+        enrollments = query.OrderBy(item => item.Course?.Code).ToList();
+    }
+
+    private async Task<Student?> GetCurrentStudentAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var email = state.User.Identity?.Name ?? "irtaza@studentdash.local";
+        var students = await SchoolService.GetStudentsAsync(email);
+        return students.FirstOrDefault(item => item.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            ?? students.FirstOrDefault()
+            ?? (await SchoolService.GetStudentsAsync()).FirstOrDefault();
+    }
+}

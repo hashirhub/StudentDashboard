@@ -1,0 +1,21 @@
+<div class="stat-card @AccentClass">
+    <div class="stat-top">
+        <div>
+            <span>@Title</span>
+            <strong>@Value</strong>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <div class="stat-icon">@Icon</div>
+        }
+    </div>
+    <small>@Description</small>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Value { get; set; } = "0";
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public string Icon { get; set; } = string.Empty;
+    [Parameter] public string AccentClass { get; set; } = "primary";
+}

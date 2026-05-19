@@ -1,0 +1,74 @@
+@inject DashboardAuthStateProvider AuthProvider
+@inject NavigationManager Navigation
+
+<aside class="sidebar">
+    <div class="brand">
+        <div class="brand-icon">🎓</div>
+        <div>
+            <strong>Student Dashboard</strong>
+            <small>Student account</small>
+        </div>
+    </div>
+
+    <AuthorizeView Context="authState">
+        <Authorized>
+            <div class="sidebar-user simple-user">
+                <div class="avatar-badge">@GetInitials(authState.User.Identity?.Name)</div>
+                <div>
+                    <strong>@GetStudentName(authState.User.Identity?.Name)</strong>
+                    <small>Student account</small>
+                </div>
+            </div>
+
+            <nav class="nav-list mt-3">
+                <NavLink href="/" Match="NavLinkMatch.All"><span class="nav-icon">🏠</span> Dashboard</NavLink>
+                <NavLink href="/profile"><span class="nav-icon">👤</span> My Profile</NavLink>
+                <NavLink href="/courses"><span class="nav-icon">📚</span> My Courses</NavLink>
+                <NavLink href="/attendance"><span class="nav-icon">✅</span> My Attendance</NavLink>
+                <NavLink href="/grades"><span class="nav-icon">📝</span> My Grades</NavLink>
+                <NavLink href="/assignments"><span class="nav-icon">📌</span> Assignments</NavLink>
+                <NavLink href="/fees"><span class="nav-icon">💳</span> Fees</NavLink>
+                <NavLink href="/notifications"><span class="nav-icon">🔔</span> Notifications</NavLink>
+                <NavLink href="/events"><span class="nav-icon">🗓️</span> Events</NavLink>
+                <NavLink href="/support"><span class="nav-icon">🛟</span> Support</NavLink>
+            </nav>
+
+            <button class="btn btn-outline-light w-100 mt-3 logout-btn" @onclick="LogoutAsync">Logout</button>
+        </Authorized>
+        <NotAuthorized>
+            <nav class="nav-list">
+                <NavLink href="/login"><span class="nav-icon">🔐</span> Student Login</NavLink>
+            </nav>
+        </NotAuthorized>
+    </AuthorizeView>
+</aside>
+
+@code {
+    private async Task LogoutAsync()
+    {
+        await AuthProvider.LogoutAsync();
+        Navigation.NavigateTo("/login");
+    }
+
+    private static string GetStudentName(string? email)
+    {
+        return email?.ToLowerInvariant() switch
+        {
+            "irtaza@studentdash.local" => "Irtaza Shahid",
+            "sufyan@studentdash.local" => "Sufyan Amjad",
+            "hashir@studentdash.local" => "Hashir Hassan",
+            _ => "Student"
+        };
+    }
+
+    private static string GetInitials(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return "SD";
+        }
+
+        var token = text.Split('@', StringSplitOptions.RemoveEmptyEntries)[0];
+        return token.Length == 0 ? "SD" : token[0].ToString().ToUpperInvariant();
+    }
+}

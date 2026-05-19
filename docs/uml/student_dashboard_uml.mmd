@@ -1,0 +1,102 @@
+classDiagram
+    class BaseEntity {
+        +int Id
+        +DateTime CreatedAt
+        +string EntityLabel
+    }
+
+    class Person {
+        +string FirstName
+        +string LastName
+        +string Email
+        +string Phone
+        +GetFullName()
+    }
+
+    class Student {
+        +string StudentNumber
+        +string ProgramName
+        +int Semester
+        +string Status
+        +GetFullName()
+    }
+
+    class Course {
+        +string Code
+        +string Title
+        +int CreditHours
+        +string InstructorName
+    }
+
+    class Enrollment {
+        +int StudentId
+        +int CourseId
+        +DateTime EnrolledOn
+        +string Status
+    }
+
+    class AttendanceRecord {
+        +DateTime AttendanceDate
+        +string Status
+        +string Remarks
+    }
+
+    class GradeRecord {
+        +string ExamType
+        +decimal MarksObtained
+        +decimal TotalMarks
+        +decimal Percentage
+    }
+
+    class AssignmentItem {
+        +string Title
+        +string Description
+        +DateTime DueDate
+        +decimal TotalMarks
+    }
+
+    class FeeInvoice {
+        +decimal Amount
+        +DateTime DueDate
+        +bool IsPaid
+    }
+
+    class NotificationItem {
+        +string Title
+        +string Message
+        +string Audience
+        +bool IsRead
+    }
+
+    class CalendarEvent {
+        +string Title
+        +DateTime EventDate
+        +string Location
+    }
+
+    class SupportTicket {
+        +string Subject
+        +string Description
+        +string Status
+        +string Priority
+    }
+
+    BaseEntity <|-- Person
+    Person <|-- Student
+    BaseEntity <|-- Course
+    BaseEntity <|-- Enrollment
+    BaseEntity <|-- AttendanceRecord
+    BaseEntity <|-- GradeRecord
+    BaseEntity <|-- AssignmentItem
+    BaseEntity <|-- FeeInvoice
+    BaseEntity <|-- NotificationItem
+    BaseEntity <|-- CalendarEvent
+    BaseEntity <|-- SupportTicket
+
+    Student "1" o-- "*" Enrollment
+    Course "1" o-- "*" Enrollment
+    Student "1" o-- "*" AttendanceRecord
+    Student "1" o-- "*" GradeRecord
+    Student "1" o-- "*" FeeInvoice
+    Student "1" o-- "*" SupportTicket
+    Course "1" o-- "*" AssignmentItem

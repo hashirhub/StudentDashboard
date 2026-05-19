@@ -1,0 +1,14 @@
+The Visual Studio error "Unable to configure HTTPS endpoint" is not an App.razor error.
+It happens when the app is configured to run on https://localhost but the local developer HTTPS certificate is missing or untrusted.
+
+This project package avoids the problem by running only on:
+http://localhost:5234
+
+Technical changes:
+- Removed app.UseHttpsRedirection(); from Program.cs
+- Removed app.UseHsts(); from Program.cs
+- Changed launchSettings.json applicationUrl to http://localhost:5234 only
+
+Alternative manual fix, if HTTPS is required later:
+dotnet dev-certs https
+dotnet dev-certs https --trust

@@ -1,0 +1,149 @@
+@page "/support"
+@attribute [Authorize]
+@inject ISchoolService SchoolService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="page-title">
+    <div>
+        <h2>Support</h2>
+        <p class="text-muted">Create support tickets and track your own requests.</p>
+    </div>
+</div>
+
+<AlertBox Message="@message" Type="@messageType" />
+
+<div class="data-card">
+    <div class="card-heading">
+        <div>
+            <h3>Create Support Ticket</h3>
+            <p>Submit an issue to the student support team.</p>
+        </div>
+    </div>
+
+    <EditForm Model="@ticketForm" OnValidSubmit="CreateTicketAsync">
+        <DataAnnotationsValidator />
+        <div class="form-grid">
+            <div>
+                <label class="form-label">Subject</label>
+                <InputText class="form-control" @bind-Value="ticketForm.Subject" />
+                <ValidationMessage For="@(() => ticketForm.Subject)" />
+            </div>
+            <div>
+                <label class="form-label">Priority</label>
+                <InputSelect class="form-select" @bind-Value="ticketForm.Priority">
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                </InputSelect>
+            </div>
+            <div>
+                <label class="form-label">Description</label>
+                <InputText class="form-control" @bind-Value="ticketForm.Description" />
+                <ValidationMessage For="@(() => ticketForm.Description)" />
+            </div>
+        </div>
+        <button class="btn btn-primary mt-3" type="submit">Submit Ticket</button>
+    </EditForm>
+</div>
+
+<div class="data-card">
+    <div class="card-heading">
+        <div>
+            <h3>My Tickets</h3>
+            <p>Support requests linked to your student account.</p>
+        </div>
+    </div>
+
+    @if (tickets.Count == 0)
+    {
+        <div class="empty-state">No support tickets submitted yet.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in tickets)
+                    {
+                        <tr>
+                            <td>@item.Subject</td>
+                            <td>@item.Description</td>
+                            <td>@item.Priority</td>
+                            <td><span class="@(item.Status == "Closed" ? "status-pill success" : "status-pill warning")">@item.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private Student? student;
+    private SupportTicket ticketForm = NewTicket();
+    private List<SupportTicket> tickets = new();
+    private string message = string.Empty;
+    private string messageType = "success";
+
+    protected override async Task OnInitializedAsync()
+    {
+        student = await GetCurrentStudentAsync();
+        await LoadTicketsAsync();
+    }
+
+    private async Task CreateTicketAsync()
+    {
+        if (student is null)
+        {
+            return;
+        }
+
+        ticketForm.StudentId = student.Id;
+        ticketForm.Status = "Open";
+        await SchoolService.AddSupportTicketAsync(ticketForm);
+        message = "Support ticket submitted successfully.";
+        messageType = "success";
+        ticketForm = NewTicket();
+        await LoadTicketsAsync();
+    }
+
+    private async Task LoadTicketsAsync()
+    {
+        if (student is null)
+        {
+            tickets = new();
+            return;
+        }
+
+        tickets = (await SchoolService.GetSupportTicketsAsync())
+            .Where(item => item.StudentId == student.Id)
+            .OrderByDescending(item => item.Id)
+            .ToList();
+    }
+
+    private static SupportTicket NewTicket() => new()
+    {
+        Subject = "New Support Request",
+        Description = "Describe your issue here.",
+        Priority = "Medium",
+        Status = "Open"
+    };
+
+    private async Task<Student?> GetCurrentStudentAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var email = state.User.Identity?.Name ?? "irtaza@studentdash.local";
+        var students = await SchoolService.GetStudentsAsync(email);
+        return students.FirstOrDefault(item => item.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            ?? students.FirstOrDefault()
+            ?? (await SchoolService.GetStudentsAsync()).FirstOrDefault();
+    }
+}

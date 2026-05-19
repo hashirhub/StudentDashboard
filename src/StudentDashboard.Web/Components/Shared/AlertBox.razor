@@ -1,0 +1,15 @@
+@if (!string.IsNullOrWhiteSpace(Message))
+{
+    <div class="custom-alert @CssClass mb-3" role="alert">@Message</div>
+}
+
+@code {
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public string Type { get; set; } = "success";
+
+    private string CssClass => Type.Equals("error", StringComparison.OrdinalIgnoreCase)
+        ? "alert-danger"
+        : Type.Equals("warning", StringComparison.OrdinalIgnoreCase)
+            ? "alert-warning"
+            : "alert-success";
+}

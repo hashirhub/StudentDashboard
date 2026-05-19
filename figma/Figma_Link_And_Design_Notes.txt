@@ -1,0 +1,17 @@
+Figma Design Notes
+
+This project uses a clean student portal layout:
+
+- Left sidebar navigation
+- Student dashboard cards
+- Profile page
+- Course table
+- Attendance summary
+- Grade summary
+- Assignment table
+- Fee table
+- Notification list
+- Events list
+- Support ticket form
+
+A Figma link can be added here by the student/team if required by submission.

@@ -1,0 +1,81 @@
+@page "/notifications"
+@attribute [Authorize]
+@inject ISchoolService SchoolService
+
+<div class="page-title">
+    <div>
+        <h2>Notifications</h2>
+        <p class="text-muted">Read announcements shared with students.</p>
+    </div>
+</div>
+
+<AlertBox Message="@message" Type="success" />
+
+<div class="data-card">
+    @if (notifications.Count == 0)
+    {
+        <div class="empty-state">No notifications available.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Message</th>
+                        <th>Audience</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in notifications)
+                    {
+                        <tr>
+                            <td>@item.Title</td>
+                            <td>@item.Message</td>
+                            <td>@item.Audience</td>
+                            <td><span class="@(item.IsRead ? "status-pill success" : "status-pill warning")">@(item.IsRead ? "Read" : "Unread")</span></td>
+                            <td>
+                                @if (!item.IsRead)
+                                {
+                                    <button class="btn btn-primary btn-sm" @onclick="() => MarkReadAsync(item.Id)">Mark Read</button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Done</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<NotificationItem> notifications = new();
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNotificationsAsync();
+    }
+
+    private async Task LoadNotificationsAsync()
+    {
+        notifications = (await SchoolService.GetNotificationsAsync())
+            .Where(item => item.Audience == "All" || item.Audience == "Students")
+            .OrderByDescending(item => item.Id)
+            .ToList();
+    }
+
+    private async Task MarkReadAsync(int id)
+    {
+        await SchoolService.MarkNotificationReadAsync(id);
+        message = "Notification marked as read.";
+        await LoadNotificationsAsync();
+    }
+}

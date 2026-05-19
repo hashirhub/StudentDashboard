@@ -1,0 +1,274 @@
+@page "/"
+@attribute [Authorize]
+@inject ISchoolService SchoolService
+@inject AuthenticationStateProvider AuthStateProvider
+
+@if (student is null || summary is null)
+{
+    <div class="data-card"><p class="mb-0">Loading student dashboard...</p></div>
+}
+else
+{
+    <div class="student-home-panel mb-4">
+        <div class="student-home-showcase">
+            <span class="badge-soft mb-2">Student Dashboard</span>
+            <h2>Welcome, @student.FirstName</h2>
+            <p>@student.ProgramName &mdash; Semester @student.Semester</p>
+
+            <div class="showcase-points compact-showcase-points">
+                <div class="showcase-point">
+                    <div class="point-icon">📚</div>
+                    <div>
+                        <strong>@enrollments.Count Courses</strong>
+                        <div>Currently enrolled</div>
+                    </div>
+                </div>
+                <div class="showcase-point">
+                    <div class="point-icon">✅</div>
+                    <div>
+                        <strong>@attendancePercentage% Attendance</strong>
+                        <div>Present percentage</div>
+                    </div>
+                </div>
+                <div class="showcase-point">
+                    <div class="point-icon">📝</div>
+                    <div>
+                        <strong>@averageGrade% Grade Avg</strong>
+                        <div>Current score</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="student-home-card">
+            <h3>Academic Summary</h3>
+            <p class="text-muted">@student.StudentNumber</p>
+
+            <div class="summary-mini-grid">
+                <div class="summary-mini-card">
+                    <span>Pending Fees</span>
+                    <strong>PKR @pendingFees.ToString("N0")</strong>
+                </div>
+                <div class="summary-mini-card">
+                    <span>Open Tickets</span>
+                    <strong>@openTickets</strong>
+                </div>
+                <div class="summary-mini-card">
+                    <span>Status</span>
+                    <strong>@student.Status</strong>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="card-subtle">Attendance</span>
+                    <strong>@attendancePercentage%</strong>
+                </div>
+                <div class="progress-modern"><span style="width:@attendancePercentage%;"></span></div>
+            </div>
+
+            <div class="mt-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="card-subtle">Grades</span>
+                    <strong>@averageGrade%</strong>
+                </div>
+                <div class="progress-modern"><span style="width:@averageGrade%;"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-4">
+        <StatCard Title="My Courses" Value="@enrollments.Count.ToString()" Description="Currently enrolled" Icon="📚" AccentClass="primary" />
+        <StatCard Title="Attendance" Value="@($"{attendancePercentage}%")" Description="Present percentage" Icon="✅" AccentClass="success" />
+        <StatCard Title="Grade Avg" Value="@($"{averageGrade}%")" Description="Current score" Icon="📝" AccentClass="warning" />
+        <StatCard Title="Open Tickets" Value="@openTickets.ToString()" Description="Support requests" Icon="🛟" AccentClass="info" />
+    </div>
+
+    <div class="grid grid-2 mt-3">
+        <div class="data-card">
+            <div class="card-heading">
+                <div>
+                    <h3>Recent Assignments</h3>
+                    <p>Upcoming tasks from enrolled courses</p>
+                </div>
+                <a class="badge-soft" href="/assignments">View all</a>
+            </div>
+
+            @if (assignments.Count == 0)
+            {
+                <div class="empty-state">No assignments available.</div>
+            }
+            else
+            {
+                <ul class="list-clean">
+                    @foreach (var item in assignments)
+                    {
+                        <li>
+                            <div>
+                                <div class="item-title">@item.Title</div>
+                                <div class="item-text">@item.Course?.Code - @item.Course?.Title</div>
+                            </div>
+                            <div class="item-meta">@item.DueDate.ToString("dd MMM")<br />@item.TotalMarks marks</div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div class="data-card">
+            <div class="card-heading">
+                <div>
+                    <h3>Latest Notifications</h3>
+                    <p>Important student updates</p>
+                </div>
+                <a class="badge-soft" href="/notifications">Open</a>
+            </div>
+
+            @if (notifications.Count == 0)
+            {
+                <div class="empty-state">No notifications available.</div>
+            }
+            else
+            {
+                <ul class="list-clean">
+                    @foreach (var item in notifications)
+                    {
+                        <li>
+                            <div>
+                                <div class="item-title">@item.Title</div>
+                                <div class="item-text">@item.Message</div>
+                            </div>
+                            <div class="item-meta">@item.Audience</div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+
+    <div class="grid grid-2 mt-3">
+        <div class="data-card">
+            <div class="card-heading">
+                <div>
+                    <h3>Fee Status</h3>
+                    <p>Payment overview</p>
+                </div>
+                <a class="badge-soft" href="/fees">View fees</a>
+            </div>
+            <ul class="list-clean">
+                <li>
+                    <div>
+                        <div class="item-title">Pending Balance</div>
+                        <div class="item-text">Unpaid fee invoices</div>
+                    </div>
+                    <div class="item-meta"><strong>PKR @pendingFees.ToString("N0")</strong></div>
+                </li>
+                <li>
+                    <div>
+                        <div class="item-title">Total Invoices</div>
+                        <div class="item-text">Fee records in account</div>
+                    </div>
+                    <div class="item-meta"><strong>@invoices.Count</strong></div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="data-card">
+            <div class="card-heading">
+                <div>
+                    <h3>Student Details</h3>
+                    <p>Basic account information</p>
+                </div>
+                <a class="badge-soft" href="/profile">Profile</a>
+            </div>
+            <ul class="list-clean">
+                <li>
+                    <div>
+                        <div class="item-title">Student Number</div>
+                        <div class="item-text">@student.StudentNumber</div>
+                    </div>
+                    <div class="item-meta">@student.Status</div>
+                </li>
+                <li>
+                    <div>
+                        <div class="item-title">Program</div>
+                        <div class="item-text">@student.ProgramName</div>
+                    </div>
+                    <div class="item-meta">Semester @student.Semester</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+
+@code {
+    private Student? student;
+    private ReportSummary? summary;
+    private List<Enrollment> enrollments = new();
+    private List<AttendanceRecord> attendance = new();
+    private List<GradeRecord> grades = new();
+    private List<AssignmentItem> assignments = new();
+    private List<FeeInvoice> invoices = new();
+    private List<NotificationItem> notifications = new();
+    private decimal attendancePercentage;
+    private decimal averageGrade;
+    private decimal pendingFees;
+    private int openTickets;
+
+    protected override async Task OnInitializedAsync()
+    {
+        student = await GetCurrentStudentAsync();
+        summary = await SchoolService.GetSummaryAsync();
+
+        if (student is null)
+        {
+            return;
+        }
+
+        enrollments = (await SchoolService.GetEnrollmentsAsync())
+            .Where(item => item.StudentId == student.Id)
+            .ToList();
+
+        var courseIds = enrollments.Select(item => item.CourseId).ToHashSet();
+
+        attendance = (await SchoolService.GetAttendanceAsync())
+            .Where(item => item.StudentId == student.Id)
+            .ToList();
+
+        grades = (await SchoolService.GetGradesAsync())
+            .Where(item => item.StudentId == student.Id)
+            .ToList();
+
+        assignments = (await SchoolService.GetAssignmentsAsync())
+            .Where(item => courseIds.Contains(item.CourseId))
+            .OrderBy(item => item.DueDate)
+            .Take(5)
+            .ToList();
+
+        invoices = (await SchoolService.GetFeesAsync())
+            .Where(item => item.StudentId == student.Id)
+            .ToList();
+
+        notifications = (await SchoolService.GetNotificationsAsync())
+            .Where(item => item.Audience == "All" || item.Audience == "Students")
+            .Take(4)
+            .ToList();
+
+        openTickets = (await SchoolService.GetSupportTicketsAsync())
+            .Count(item => item.StudentId == student.Id && item.Status != "Closed");
+
+        attendancePercentage = attendance.Count == 0 ? 0 : Math.Round((decimal)attendance.Count(item => item.Status == "Present") / attendance.Count * 100, 2);
+        averageGrade = grades.Count == 0 ? 0 : Math.Round(grades.Average(item => item.Percentage), 2);
+        pendingFees = invoices.Where(item => !item.IsPaid).Sum(item => item.Amount);
+    }
+
+    private async Task<Student?> GetCurrentStudentAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var email = state.User.Identity?.Name ?? "irtaza@studentdash.local";
+        var students = await SchoolService.GetStudentsAsync(email);
+        return students.FirstOrDefault(item => item.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            ?? students.FirstOrDefault()
+            ?? (await SchoolService.GetStudentsAsync()).FirstOrDefault();
+    }
+}
