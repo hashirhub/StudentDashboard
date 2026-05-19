@@ -34,3 +34,19 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach (var enrollment in enrollments)
+                    {
+                        <tr>
+                            <td>@enrollment.Course?.Code</td>
+                            <td>@enrollment.Course?.Title</td>
+                            <td>@enrollment.Course?.InstructorName</td>
+                            <td>@enrollment.Course?.CreditHours</td>
+                            <td><span class="status-pill success">@enrollment.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
