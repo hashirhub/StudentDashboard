@@ -5,3 +5,13 @@
 
 <div class="page-title">
     <div>
+        <h2>Assignments</h2>
+        <p class="text-muted">Assignments from your enrolled courses.</p>
+    </div>
+</div>
+
+<div class="data-card">
+    @if (assignments.Count == 0)
+    {
+        <div class="empty-state">No assignments available for your courses.</div>
+    }
