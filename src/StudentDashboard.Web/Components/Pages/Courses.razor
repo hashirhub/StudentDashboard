@@ -50,3 +50,20 @@
     }
 </div>
 
+@code {
+    private List<Enrollment> enrollments = new();
+    private string searchTerm = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCoursesAsync();
+    }
+
+    private async Task LoadCoursesAsync()
+    {
+        var student = await GetCurrentStudentAsync();
+        if (student is null)
+        {
+            enrollments = new();
+            return;
+        }
