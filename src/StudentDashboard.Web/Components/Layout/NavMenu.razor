@@ -40,3 +40,21 @@
     </AuthorizeView>
 </aside>
 
+@code {
+    private async Task LogoutAsync()
+    {
+        await AuthProvider.LogoutAsync();
+        Navigation.NavigateTo("/login");
+    }
+
+    private static string GetStudentName(string? email)
+    {
+        return email?.ToLowerInvariant() switch
+        {
+            "irtaza@studentdash.local" => "Irtaza Shahid",
+            "sufyan@studentdash.local" => "Sufyan Amjad",
+            "hashir@studentdash.local" => "Hashir Hassan",
+            _ => "Student"
+        };
+    }
+
