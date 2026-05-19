@@ -37,3 +37,28 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach (var item in invoices)
+                    {
+                        <tr>
+                            <td>PKR @item.Amount.ToString("N0")</td>
+                            <td>@item.DueDate.ToString("dd MMM yyyy")</td>
+                            <td><span class="@(item.IsPaid ? "status-pill success" : "status-pill warning")">@(item.IsPaid ? "Paid" : "Pending")</span></td>
+                            <td>@item.Notes</td>
+                            <td>
+                                @if (!item.IsPaid)
+                                {
+                                    <button class="btn btn-primary btn-sm" @onclick="() => PayFeeAsync(item.Id)">Pay Now</button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Completed</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
