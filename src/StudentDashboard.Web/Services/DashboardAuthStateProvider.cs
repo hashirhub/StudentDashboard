@@ -24,3 +24,10 @@ public class DashboardAuthStateProvider : AuthenticationStateProvider
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         return Task.CompletedTask;
     }
+    public Task LogoutAsync()
+    {
+        currentUser = new ClaimsPrincipal(new ClaimsIdentity());
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        return Task.CompletedTask;
+    }
+}
