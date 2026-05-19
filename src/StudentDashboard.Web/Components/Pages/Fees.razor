@@ -82,3 +82,20 @@
             invoices = new();
             return;
         }
+
+        invoices = (await SchoolService.GetFeesAsync())
+            .Where(item => item.StudentId == student.Id)
+            .OrderBy(item => item.DueDate)
+            .ToList();
+
+        pendingAmount = invoices.Where(item => !item.IsPaid).Sum(item => item.Amount);
+        paidCount = invoices.Count(item => item.IsPaid);
+    }
+
+    private async Task PayFeeAsync(int id)
+    {
+        await SchoolService.MarkFeePaidAsync(id);
+        message = "Payment marked as completed.";
+        messageType = "success";
+        await LoadFeesAsync();
+    }
