@@ -17,3 +17,23 @@
     <StatCard Title="Pending Amount" Value="@($"PKR {pendingAmount:N0}")" Description="Unpaid dues" Icon="💳" AccentClass="warning" />
     <StatCard Title="Paid Invoices" Value="@paidCount.ToString()" Description="Completed payments" Icon="✅" AccentClass="success" />
 </div>
+
+<div class="data-card">
+    @if (invoices.Count == 0)
+    {
+        <div class="empty-state">No fee records available.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
