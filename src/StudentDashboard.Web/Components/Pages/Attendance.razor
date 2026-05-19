@@ -34,3 +34,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach (var item in records)
+                    {
+                        <tr>
+                            <td>@item.AttendanceDate.ToString("dd MMM yyyy")</td>
+                            <td>@item.Course?.Code - @item.Course?.Title</td>
+                            <td><span class="@GetStatusClass(item.Status)">@item.Status</span></td>
+                            <td>@item.Remarks</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
